@@ -1,0 +1,123 @@
+import logo from './logo.svg';
+import './App.css';
+import React, {Component, useEffect, useState} from 'react'
+import { Map, GoogleApiWrapper, Marker } from 'google-maps-react';
+import {render} from 'react-dom';
+import axios from 'axios';
+
+const mapStyles = {
+  width: '100%',
+  height: '100%',
+};
+
+function ApiCall(props) {
+    const [posts, setPosts] = useState([]);
+
+    const takeCoordinate = () => {
+
+    }
+
+    useEffect(() => {
+        const headers = {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, PATCH, DELETE"
+        };
+
+        axios.get('http://localhost:8070/coordinate?longitude=151.1978497&latitude=-33.8711471&radius=1500', {headers})
+            .then(response => {
+                setPosts(response.data.CoordinateList);
+                console.log(posts)
+                console.log(response.data)
+            })
+            .catch(error => {
+                console.error(error);
+            });
+    }, []);
+
+    return (
+        <div>
+            <button onClick={takeCoordinate}>
+                Submit
+            </button>
+            <Map
+                google={props.google}
+                zoom={8}
+                style={mapStyles}
+                initialCenter={{ lat: 47.444, lng: -122.176}}>
+                {posts}
+            </Map>
+        </div>
+    );
+}
+
+export class MapContainer extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+        markers: [],
+        posts: []
+    };
+  }
+
+
+  componentDidMount() {
+        this.CoordinateList();
+    }
+
+  CoordinateList() {
+        const headers = {
+            "Content-Type": "application/json",
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, OPTIONS, PUT, PATCH, DELETE"
+        };
+
+        axios.get('http://localhost:8070/coordinate?longitude=151.1978497&latitude=-33.8711471&radius=1500', { headers })
+            .then(response => {
+                this.setState({ posts : response.data.CoordinateList})
+                console.log(response.data)
+            });
+  }
+/*
+    displayMarkers = () => {
+        return this.state.stores.map((store, index) => {
+            return <Marker key={index} id={index} position={{
+                lat: store.latitude,
+                lng: store.longitude
+            }}
+                           onClick={() => console.log("You clicked me!")} />
+        })
+    }
+*/
+
+
+    displayMarkers = () => {
+    console.log(this.state);
+
+    return this.state.posts.data.CoordinateList?.map((post, index) => {
+      return <Marker key={index} id={index} position={{
+        lat: post.latitude,
+        lng: post.longitude
+      }}
+                     onClick={() => console.log("You clicked me!")} />
+    })
+  }
+
+  render() {
+    return (
+            <Map
+                google={this.props.google}
+                zoom={8}
+                style={mapStyles}
+                initialCenter={{ lat: 47.444, lng: -122.176}}>
+                {this.state.posts}
+            </Map>
+    );
+  }
+}
+
+export default GoogleApiWrapper({
+  apiKey: 'AIzaSyBJvuPQDeBQstcmg8Ki7z9u9fZh3ZwGuKE'
+})(ApiCall);
+
