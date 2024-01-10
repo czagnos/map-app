@@ -69,6 +69,6 @@ function ApiCall(props) {
 }
 
 export default GoogleApiWrapper({
-  apiKey: 'AIzaSyBJvuPQDeBQstcmg8Ki7z9u9fZh3ZwGuKE'
+  apiKey: process.env.GOOGLE_API_KEY
 })(ApiCall);
 
